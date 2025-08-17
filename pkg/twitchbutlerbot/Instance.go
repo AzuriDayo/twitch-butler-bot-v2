@@ -7,16 +7,18 @@ import (
 type instance struct {
 	botHelixClient         *helix.Client
 	broadcasterHelixClient *helix.Client
-	broadcasterChannelName        string
-	botChannelName                string
+	broadcasterChannelName string
+	botChannelName         string
 	// eventSubChan      *chan (struct{})
 }
 
 func (i *instance) AddCommandHandler() {
+	// props: command name, handlerFunc
 
 }
 
 func (i *instance) AddChannelRewardRedemptionHandler() {
+	// props: reward redepmtion name, handlerFunc
 
 }
 

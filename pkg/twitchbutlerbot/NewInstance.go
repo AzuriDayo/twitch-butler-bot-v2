@@ -2,6 +2,7 @@ package twitchbutlerbot
 
 import (
 	"errors"
+	"log"
 
 	"github.com/nicklaw5/helix/v2"
 )
@@ -38,7 +39,17 @@ func NewInstance(props InstanceProps) (*instance, error) {
 	i.botHelixClient = botHelixClient
 	i.botChannelName = props.BotAuth.ChannelName
 
-	// configure internal modules if any (ie: custom commands, and reward redemption handlers)
+	botSelf, err := i.botHelixClient.GetUsers(&helix.UsersParams{})
+	if len(botSelf.Data.Users) < 1 || err != nil {
+		return nil, errors.New("NewInstance: Failed to query botSelf " + err.Error())
+	}
+	log.Println("Preflight bot", botSelf.Data.Users[0].Login, "success")
+
+	broadcasterSelf, err := i.broadcasterHelixClient.GetUsers(&helix.UsersParams{})
+	if len(broadcasterSelf.Data.Users) < 1 || err != nil {
+		return nil, errors.New("NewInstance: Failed to query botSelf " + err.Error())
+	}
+	log.Println("Preflight broadcaster", broadcasterSelf.Data.Users[0].Login, "success")
 
 	return i, nil
 }
