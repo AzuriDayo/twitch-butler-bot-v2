@@ -29,7 +29,14 @@ func NewInstance(props InstanceProps) (*instance, error) {
 			return nil, errors.New("NewInstance: Failed to create broadcasterHelixClient " + err.Error())
 		}
 		i.broadcasterHelixClient = broadcasterHelixClient
-		i.broadcasterChannelName = props.BroadcasterAuth.ChannelName
+
+		broadcasterSelf, err := i.broadcasterHelixClient.GetUsers(&helix.UsersParams{})
+		if len(broadcasterSelf.Data.Users) < 1 || err != nil {
+			return nil, errors.New("NewInstance: Failed to query broadcasterSelf " + err.Error())
+		}
+		log.Println("Preflight broadcaster", broadcasterSelf.Data.Users[0].Login, "success")
+
+		i.broadcasterChannelName = broadcasterSelf.Data.Users[0].Login
 
 	}
 	botHelixClient, err := buildHelixClient(props.BotAuth)
@@ -37,7 +44,6 @@ func NewInstance(props InstanceProps) (*instance, error) {
 		return nil, errors.New("NewInstance: Failed to create botHelixClient " + err.Error())
 	}
 	i.botHelixClient = botHelixClient
-	i.botChannelName = props.BotAuth.ChannelName
 
 	botSelf, err := i.botHelixClient.GetUsers(&helix.UsersParams{})
 	if len(botSelf.Data.Users) < 1 || err != nil {
@@ -45,11 +51,7 @@ func NewInstance(props InstanceProps) (*instance, error) {
 	}
 	log.Println("Preflight bot", botSelf.Data.Users[0].Login, "success")
 
-	broadcasterSelf, err := i.broadcasterHelixClient.GetUsers(&helix.UsersParams{})
-	if len(broadcasterSelf.Data.Users) < 1 || err != nil {
-		return nil, errors.New("NewInstance: Failed to query botSelf " + err.Error())
-	}
-	log.Println("Preflight broadcaster", broadcasterSelf.Data.Users[0].Login, "success")
+	i.botChannelName = botSelf.Data.Users[0].Login
 
 	return i, nil
 }
